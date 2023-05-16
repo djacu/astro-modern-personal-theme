@@ -31,10 +31,28 @@
           nodejs = pkgs.nodejs;
           node_modules_mode = "copy";
 
-          node_modules_attrs.npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
-          npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
+          #node_modules_attrs.npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
+          #npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
 
-          node_modules_attrs.nativeBuildInputs = [pkgs.python3];
+          node_modules_attrs.nativeBuildInputs = [
+            pkgs.python3
+            pkgs.vips
+            pkgs.dbus
+            pkgs.pkg-config
+          ];
+
+          node_modules_attrs.shellHook = ''
+            export PATH="${pkgs.vips}/bin/:$PATH"
+          '';
+
+          # node_modules_attrs = {
+          #   buildPhase = ''
+          #     echo FUCK
+          #     # echo $PATH
+          #     pkg-config --modversion vips-cpp
+          #     exit 123
+          #   '';
+          # };
         };
 
         sharp = pkgs.npmlock2nix.v2.shell {
@@ -61,7 +79,7 @@
           };
         };
 
-        lib-vips = pkgs.stdenvNoCC.mkDerivation rec {
+        lib-vips = pkgs.stdenv.mkDerivation rec {
           pname = "libvips";
           version = "8.13.3";
           arch = "linux-x64";
