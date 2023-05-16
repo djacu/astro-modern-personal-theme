@@ -34,7 +34,7 @@
           node_modules_attrs.npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
           npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
 
-          node_modules_attrs.nativeBuildInputs = [ pkgs.python3 ];
+          node_modules_attrs.nativeBuildInputs = [pkgs.python3];
         };
 
         sharp = pkgs.npmlock2nix.v2.shell {
@@ -50,36 +50,37 @@
 
           node_modules_attrs.npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
           npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
+
+          node_modules_attrs = {
+            preBuildPhases = ["preBuildPhase"];
+            preBuildPhase = ''
+              echo FUCK
+              echo $sourceRoot
+              exit 123
+            '';
+          };
         };
 
         lib-vips = pkgs.stdenvNoCC.mkDerivation rec {
-          name = "libvips";
+          pname = "libvips";
           version = "8.13.3";
           arch = "linux-x64";
           src = builtins.fetchurl {
-            url = "https://github.com/lovell/sharp-libvips/releases/download/v${version}/${name}-${version}-${arch}.tar.br";
+            url = "https://github.com/lovell/sharp-libvips/releases/download/v${version}/${pname}-${version}-${arch}.tar.br";
             sha256 = "1jgw7dknfk9w1cwzcj6k98jrnncg1fwxf6jf1hlxpnixrn0a2hdk";
           };
           unpackPhase = ''
-            echo "nothing to unpack"
             mkdir source
             cp $src ./source/
           '';
-          #sourceRoot = ".";
-          patchPhase = ''
-            echo "nothing to patch"
-          '';
-          configurePhase = ''
-            echo "nothing to configure"
-          '';
-          buildPhase = ''
-            echo "nothing to build"
-          '';
+          dontPatch = true;
+          dontConfigure = true;
+          dontBuild = true;
           installPhase = ''
             ls -FhoA .
             ls -FhoA source
             mkdir -p $out/v${version}
-            cp -r ./source/* $out/v${version}/${name}-${version}-${arch}.tar.br
+            cp -r ./source/* $out/v${version}/${pname}-${version}-${arch}.tar.br
           '';
         };
       in {
