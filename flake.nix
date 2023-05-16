@@ -38,7 +38,18 @@
         };
 
         sharp = pkgs.npmlock2nix.v2.shell {
-          src = "";
+          src = pkgs.fetchFromGitHub {
+            owner = "djacu";
+            repo = "sharp";
+            rev = "7cc7017e9f49647dc54c387ea57e49a6947ee965";
+            sha256 = "sha256-u+G8eH+KgR16pv1hKj0TsosnuaZ4OytmqXRlwU9N0kI=";
+          };
+
+          nodejs = pkgs.nodejs;
+          node_modules_mode = "copy";
+
+          node_modules_attrs.npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
+          npm_config_sharp_libvips_local_prebuilds = "${lib-vips}";
         };
 
         lib-vips = pkgs.stdenvNoCC.mkDerivation rec {
@@ -73,12 +84,16 @@
         };
       in {
         devShells.default = astro-shell;
+        devShells.sharp = sharp;
         #devShells.default = pkgs.mkShell {
         #  packages = [
         #    pkgs.alejandra
         #  ];
         #};
         packages.default = lib-vips;
+        packages = {
+          inherit sharp;
+        };
       }
     );
 }
